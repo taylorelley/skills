@@ -4,9 +4,13 @@ on:
   push:
     paths:
       - 'skills/**'
+      - 'scanner/**'
+      - '.github/workflows/skill-security-scan.yml'
   pull_request:
     paths:
       - 'skills/**'
+      - 'scanner/**'
+      - '.github/workflows/skill-security-scan.yml'
   workflow_dispatch:
 
 jobs:
@@ -14,27 +18,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      
-      - name: Run security scanner
-        working-directory: ./scanner
-        run: |
-          python3 scanner.py ../skills --format github --fail-on high
-      
+
       - name: Generate markdown report
-        if: always()
         working-directory: ./scanner
         run: |
-          python3 scanner.py ../skills --format markdown > scan-report.md
-      
+          python3 scanner.py ../skills --format markdown --fail-on never > scan-report.md
+
       - name: Upload report
-        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: security-scan-report
           path: scanner/scan-report.md
           retention-days: 30
+
+      - name: Run security scanner (fail on HIGH)
+        working-directory: ./scanner
+        run: |
+          python3 scanner.py ../skills --format github --fail-on high
