@@ -19,6 +19,29 @@ import socket
 import time
 import sys
 import argparse
+import shlex
+
+def parse_server_cmd(cmd_str):
+    """Parse a server command string into (args_list, cwd).
+
+    Supports 'cd <dir> && <command>' syntax without shell=True.
+    Returns a list of arguments suitable for subprocess.Popen and an
+    optional working directory.
+    """
+    cwd = None
+    cmd = cmd_str.strip()
+
+    # Handle leading 'cd <dir> && <rest>' prefix
+    if '&&' in cmd:
+        left, cmd = cmd.split('&&', 1)
+        left_tokens = shlex.split(left.strip())
+        if left_tokens and left_tokens[0] == 'cd' and len(left_tokens) > 1:
+            cwd = left_tokens[1]
+        # Any additional 'cd ... && ...' segments are silently ignored;
+        # the documented use cases only use a single leading cd.
+
+    return shlex.split(cmd), cwd
+
 
 def is_server_ready(port, timeout=30):
     """Wait for server to be ready by polling the port."""
@@ -65,10 +88,11 @@ def main():
         for i, server in enumerate(servers):
             print(f"Starting server {i+1}/{len(servers)}: {server['cmd']}")
 
-            # Use shell=True to support commands with cd and &&
+            # Parse 'cd <dir> && <cmd>' syntax without shell=True
+            args_list, cwd = parse_server_cmd(server['cmd'])
             process = subprocess.Popen(
-                server['cmd'],
-                shell=True,
+                args_list,
+                cwd=cwd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE
             )
