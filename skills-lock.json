@@ -61,6 +61,18 @@
       "skillPath": "skills/frontend-design/SKILL.md",
       "computedHash": "4eabc66183767153e404b39d1b839b1c37f2d82d86f0a0d7e880a579d8d62336"
     },
+    "fuck-slop": {
+      "source": "JuliusBrussee/skills",
+      "sourceType": "github",
+      "skillPath": "skills/communication/fuck-slop/SKILL.md",
+      "computedHash": "83291768f4aa9ec4c84eb1a2f74f0658427c523970bed86e568fb9fa6998e900"
+    },
+    "grill-me": {
+      "source": "JuliusBrussee/skills",
+      "sourceType": "github",
+      "skillPath": "skills/workflow/grill-me/SKILL.md",
+      "computedHash": "fb51ed1c9ade960e75ce781c4da411939c24a61a06d21c04060ee0e7660e673b"
+    },
     "grill-with-docs": {
       "source": "mattpocock/skills",
       "sourceType": "github",
@@ -103,11 +115,23 @@
       "skillPath": ".agents/skills/impeccable/SKILL.md",
       "computedHash": "d0cf58213e8581548a63a717d69a3b1c1eaed4c68d25887ca7b0698393b0530f"
     },
+    "interface-kit": {
+      "source": "JuliusBrussee/skills",
+      "sourceType": "github",
+      "skillPath": "skills/design/interface-kit/SKILL.md",
+      "computedHash": "4390242c57be690057e55e7d030ac029365cc52b73b688389492d3db5775393e"
+    },
     "improve-codebase-architecture": {
       "source": "mattpocock/skills",
       "sourceType": "github",
       "skillPath": "skills/engineering/improve-codebase-architecture/SKILL.md",
       "computedHash": "ef32aea0a8fab9b365ff9e08a95f8d353e20ca21ea46ec2e73587c86dd341351"
+    },
+    "junior-to-senior": {
+      "source": "JuliusBrussee/skills",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/junior-to-senior/SKILL.md",
+      "computedHash": "5fc658c5ff279aaa5f3b8cdd8857526d29806cf28e66f47c530a207207d9cfb6"
     },
     "lottie": {
       "source": "heygen-com/hyperframes",
