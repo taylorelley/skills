@@ -1,6 +1,6 @@
 # Taylor's Skills
 
-A curated collection of agent skills pulled from public repositories via the `npx skills` CLI.
+A curated collection of agent skills.
 
 ## Categories
 
