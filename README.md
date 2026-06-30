@@ -1,6 +1,6 @@
 # Taylor's Skills
 
-A curated collection of agent skills.
+A curated collection of agent skills. All contributed skills are automatically security-scanned on every PR/push via a [GitHub Actions workflow](.github/workflows/skill-security-scan.yml) for shell injection, data exfiltration, and secret theft.
 
 ## Categories
 
