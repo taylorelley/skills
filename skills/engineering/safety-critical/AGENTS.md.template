@@ -28,14 +28,28 @@
   This determines verification rigor for the entire project.
 -->
 
-| Level | Objectives | Independence | Coverage Target | Robustness Testing |
+| Level | Objectives (approx.) | Independence (approx.) | Structural coverage — cumulative | Robustness Testing |
 |-------|-----------|-------------|-----------------|-------------------|
-| DAL A / AL1 | 71 | 33 objectives | MC/DC + Data/Control Coupling | Full |
-| DAL B / AL2 | 69 | 21 objectives | Decision Coverage | Full |
-| DAL C / AL3 | 62 | 8 objectives | Statement Coverage | Full |
-| AL4 (DO-278A only) | ~40–50 | ~6 objectives | Requirements-based only | Partial |
-| DAL D / AL5 | 26 | 5 objectives | Requirements-based only | Normal range only |
+| DAL A / AL1 | 71 | ~30–33 | Statement + decision + MC/DC, plus data & control coupling and source-to-object traceability | Full |
+| DAL B / AL2 | 69 | ~18–21 | Statement + decision | Full |
+| DAL C / AL3 | 62 | ~5–8 | Statement | Full |
+| AL4 (DO-278A only) | tailored, ~40–50 | ~6 | Requirements-based; structural coverage tailored per the approved PSAA | Partial |
+| DAL D / AL5 | 26 | ~2–5 | Requirements-based HLR coverage only | Normal range only |
 | DAL E / AL6 | 0 | 0 | None | None |
+
+Coverage is **cumulative** — DAL A adds MC/DC on top of statement and decision coverage, it does
+not replace them.
+
+⚠️ **The objective and independence counts above are planning estimates for scoping effort.**
+Published sources disagree, particularly on independence counts. Before any of these numbers
+appear in the PSAC/PSAA, an SOI package, or a compliance matrix, confirm them against this
+project's own copy of the Annex A tables. The authority holds this project to the standard, not
+to this table. Record the confirmed figures here and delete this warning once done:
+
+| Confirmed at {{LEVEL}} | Value | Source |
+|---|---|---|
+| Objectives applicable | {{TBD}} | {{Annex A table reference}} |
+| Objectives requiring independence | {{TBD}} | {{Annex A table reference}} |
 
 **This project operates at {{LEVEL}}. All agent activity must satisfy the objectives, independence requirements, and coverage targets for this level.**
 
@@ -678,11 +692,23 @@ Ambiguity in safety-critical development is a finding, not an inconvenience. Res
 
 | Skill / Reference | Location | Purpose |
 |-------------------|----------|---------|
-| Software Assurance Skill | `skills/software-assurance/SKILL.md` | Core competencies, workflows, patterns, and coding examples for DO-178C/DO-278A development |
-| Software Requirements Standards | `docs/standards/SRS-{{ID}}.md` | Requirements writing rules |
+| safety-critical skill | `{{SKILL_PATH}}/SKILL.md` | Mode routing, agent conduct rules, traceability annotations, coverage targets |
+| — standards detail | `{{SKILL_PATH}}/references/competencies.md` | Assurance levels, lifecycle data items, DO-330, COTS, terminology |
+| — development workflows | `{{SKILL_PATH}}/references/workflows.md` | Writing requirements, code, test cases, change impact analysis |
+| — code patterns | `{{SKILL_PATH}}/references/patterns.md` | Safety-critical C patterns, problem reports, troubleshooting |
+| — gate checklists | `{{SKILL_PATH}}/references/checklists.md` | Phase gate exit criteria |
+| — traceability checker | `{{SKILL_PATH}}/scripts/trace_check.py` | Machine check for forward/backward traceability gaps |
+| Software Requirements Standards | `docs/standards/SRS-{{ID}}.md` | Requirements *writing rules*. Note: this is the standards document, not the Software Requirements Data — write "Requirements Standards" in full wherever both appear |
 | Software Design Standards | `docs/standards/SDS-{{ID}}.md` | Design documentation rules |
 | Software Code Standards | `docs/standards/SCS-{{ID}}.md` | Coding rules and static analysis configuration |
 | {{Additional project-specific skills}} | {{path}} | {{purpose}} |
+
+Run the traceability checker before claiming the matrix is complete, and before any gate that
+depends on traceability:
+
+```bash
+python3 {{SKILL_PATH}}/scripts/trace_check.py --project-root .
+```
 
 ---
 
