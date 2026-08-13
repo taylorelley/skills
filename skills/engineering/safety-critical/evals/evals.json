@@ -6,21 +6,50 @@
       "name": "consult-coverage-question",
       "prompt": "quick q before a review tomorrow — we're AL3 on a ground station module (DO-278A) and one of our new devs is arguing that because we're only required to hit statement coverage, we can drop the robustness test cases and just run normal-range tests until the coverage number goes green. my verification lead thinks that's wrong but couldn't articulate why in the meeting. can you settle it? also while you're at it, if we were AL2 instead would we still need statement coverage or does decision coverage replace it?",
       "expected_output": "A direct answer to both questions. (a) Structural coverage is a completeness check performed after requirements-based testing, not a target to test toward; robustness testing is a separate requirements-based obligation at AL3 and cannot be traded away for coverage. (b) Coverage is cumulative: AL2/DAL B requires statement AND decision coverage, decision does not replace statement. Should NOT demand an AGENTS.md or launch a project setup wizard before answering.",
-      "files": []
+      "files": [],
+      "assertions": [
+        "Answers the question directly without first demanding an AGENTS.md or running a project setup wizard",
+        "States that AL2/DAL B requires statement coverage IN ADDITION TO decision coverage (coverage is cumulative, decision does not replace statement)",
+        "Explains that structural coverage is measured after requirements-based testing as a completeness check, not a target to write tests toward",
+        "States that robustness testing is a required obligation at AL3 that cannot be traded away for a coverage number",
+        "Does not claim a compliance, certification or approval determination"
+      ]
     },
     {
       "id": 1,
       "name": "generate-requirement-and-tests",
       "prompt": "here's a system requirement that just came down from the ICD for our approach sequencing work: SYS-SUR-113 'The ground station shall reject ADS-B position reports whose Navigation Integrity Category (NIC) value is below 5 when the reporting target is within 5 NM of the runway threshold.' can you write me the software requirement for it plus the test cases? project constitution is in AGENTS.md in the repo root. put the requirement in docs/requirements/hlr/ and the tests in test/cases/ following whatever convention the existing NAV ones use",
       "expected_output": "An HLR file following the project's HLR-{MODULE}-{NNN} convention with a SUR prefix, correct annotations (@req, @parent SYS-SUR-113, @al 3, @status DRAFT), a single atomic shall statement, conditions/tolerances/boundary conditions, and requirements-based test cases covering normal range plus the NIC=4/5 and 5NM boundary conditions. Output marked DRAFT — REQUIRES INDEPENDENT REVIEW. Should place files in the directories named in the prompt and match the existing file style.",
-      "files": ["fixtures/gnd-station"]
+      "files": [
+        "fixtures/gnd-station"
+      ],
+      "assertions": [
+        "Creates an HLR file under docs/requirements/hlr/ using the project's HLR-{MODULE}-{NNN} convention with a SUR module prefix",
+        "HLR carries @parent SYS-SUR-113 and @al 3 annotations matching the project's DO-278A AL3 setting",
+        "Shall statement is a single atomic testable sentence",
+        "Creates at least one test case file under test/cases/ carrying @test and @req annotations that trace to the new HLR",
+        "Test cases cover the NIC boundary explicitly (NIC below 5 rejected, NIC equal to 5 accepted)",
+        "Test cases cover the 5 NM range boundary explicitly",
+        "Generated artifacts are marked DRAFT (not BASELINED) and flagged as requiring independent review",
+        "Does not silently modify the BASELINED trace-matrix.md; either leaves it alone or states that updating it needs a change request"
+      ]
     },
     {
       "id": 2,
       "name": "detect-traceability-gaps",
       "prompt": "we've got an SOI review coming up and i want to sanity check our nav module traceability before the auditors do. trace/trace-matrix.md says everything is verified with no gaps but honestly nobody has looked at it since the last baseline and i don't fully trust it. can you check whether it's actually complete in both directions? the code is in src/nav/ and the requirements are in docs/requirements/hlr/",
       "expected_output": "Must find BOTH planted defects: (1) backward gap — the static function vor_apply_station_bias() in src/nav/vor_bearing.c has no @req annotation and does not appear in the matrix, i.e. orphan code applying an undocumented declination correction; (2) forward gap — the matrix cites TST-NAV-042-005 as covering HLR-NAV-043, but no such test case file exists in test/cases/, so HLR-NAV-043 is untested. Should report the matrix's 'no gaps' claim as false and should not silently edit a BASELINED artifact without flagging change control.",
-      "files": ["fixtures/gnd-station"]
+      "files": [
+        "fixtures/gnd-station"
+      ],
+      "assertions": [
+        "PLANTED DEFECT 1: identifies vor_apply_station_bias() in src/nav/vor_bearing.c as having no @req annotation (orphan code)",
+        "PLANTED DEFECT 2: identifies that HLR-NAV-043 has no test case, because TST-NAV-042-005 cited in the matrix does not exist in test/cases/",
+        "States explicitly that the matrix's 'no gaps' / 'no orphan code' claim is false",
+        "Explains the orphan function applies an undocumented declination correction that needs either a requirement or a derived requirement with safety impact",
+        "Does not silently edit the BASELINED trace-matrix.md; flags change control or raises a problem report instead",
+        "Reports findings in both directions (forward: requirement without test; backward: code without requirement)"
+      ]
     }
   ]
 }
