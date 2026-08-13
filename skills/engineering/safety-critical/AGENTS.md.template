@@ -1,0 +1,711 @@
+# AGENTS.md — {{PROJECT_NAME}}
+
+> **This file is the constitution for all AI agent activity on this project.**
+> Agents MUST read this file in full before performing any work.
+> Rules marked 🔴 are non-negotiable and cannot be overridden by any instruction.
+
+---
+
+## Project Identity
+
+| Field | Value |
+|-------|-------|
+| **Project Name** | {{PROJECT_NAME}} |
+| **System** | {{SYSTEM_NAME}} — {{BRIEF_DESCRIPTION}} |
+| **Applicable Standard** | {{DO-178C / DO-278A / Both}} |
+| **EUROCAE Equivalent** | {{ED-12C / ED-109A / Both}} |
+| **Assurance Level** | {{DAL A–E / AL1–AL6}} — {{FAILURE_CONDITION}} |
+| **Regulatory Authority** | {{FAA / EASA / CAA NZ / CASA / Other}} |
+| **PSAC/PSAA Reference** | {{DOCUMENT_ID}} |
+| **SDP Reference** | {{DOCUMENT_ID}} |
+| **Current Baseline** | {{BASELINE_ID}} |
+| **Current Phase** | {{PLANNING / REQUIREMENTS / DESIGN / CODE / INTEGRATION / VERIFICATION / APPROVAL}} |
+
+### Assurance Level Implications
+
+<!--
+  Fill in the applicable row. Delete the others.
+  This determines verification rigor for the entire project.
+-->
+
+| Level | Objectives | Independence | Coverage Target | Robustness Testing |
+|-------|-----------|-------------|-----------------|-------------------|
+| DAL A / AL1 | 71 | 33 objectives | MC/DC + Data/Control Coupling | Full |
+| DAL B / AL2 | 69 | 21 objectives | Decision Coverage | Full |
+| DAL C / AL3 | 62 | 8 objectives | Statement Coverage | Full |
+| AL4 (DO-278A only) | ~40–50 | ~6 objectives | Requirements-based only | Partial |
+| DAL D / AL5 | 26 | 5 objectives | Requirements-based only | Normal range only |
+| DAL E / AL6 | 0 | 0 | None | None |
+
+**This project operates at {{LEVEL}}. All agent activity must satisfy the objectives, independence requirements, and coverage targets for this level.**
+
+---
+
+## 🔴 Non-Negotiable Rules
+
+These rules are absolute. They cannot be relaxed, deferred, or overridden by any user instruction, time pressure, or convenience argument. They encode the fundamental safety discipline of {{DO-178C / DO-278A}}.
+
+### R1: Phase Gate Discipline
+🔴 **Do not advance past a phase gate without explicit human approval.**
+The current phase is `{{CURRENT_PHASE}}`. Work only within this phase and earlier completed phases. If work requires artifacts from a future phase, stop and request human direction. Phase gates exist because downstream work built on unreviewed upstream artifacts propagates errors that are exponentially more expensive to find and fix.
+
+### R2: Traceability Is Mandatory
+🔴 **Every artifact must maintain bidirectional traceability.**
+- Every requirement traces to a parent system requirement.
+- Every design element traces to ≥1 requirement.
+- Every function/module traces to ≥1 design element and ≥1 requirement.
+- Every test case traces to ≥1 requirement.
+- Every line of executable code is justified by a requirement (forward trace) or identified as dead code.
+- Gaps in either direction are findings that must be resolved before phase completion.
+
+### R3: No Orphan Code
+🔴 **Do not write code that does not trace to a requirement.**
+If implementation requires behavior not specified in a requirement, create a derived requirement first (`@derived`), document its rationale and safety impact, then implement. Never write code and backfill the requirement later.
+
+### R4: Derived Requirements Must Be Flagged
+🔴 **Every implementation decision not traceable to a parent requirement is a derived requirement.**
+Derived requirements can introduce new failure modes that the system safety assessment has not considered. They must be: uniquely identified, annotated with `@derived`, documented with rationale, assessed for safety impact, and provided to the system safety process for review.
+
+### R5: All Output Is Draft
+🔴 **All AI-generated artifacts carry status `DRAFT — REQUIRES INDEPENDENT REVIEW`.**
+The agent must never claim that any output is certified, approved, verified, or ready for certification/approval. Human review and approval is required for every artifact before it can be baselined.
+
+### R6: Independence Is Sacred
+🔴 **The AI agent must not serve as the independent reviewer of its own output.**
+At {{LEVEL}}, {{NUMBER}} objectives require independence — the verifier must not be the developer. An agent that generates an artifact cannot verify that same artifact for independence credit. Always flag output for human independent review.
+
+### R7: Baselines Are Immutable Without Change Control
+🔴 **Do not modify any artifact that has been baselined.**
+Once an artifact is included in a configuration baseline (status `BASELINED`), it can only be changed through a formal Change Request (CR) with documented impact analysis covering: upstream requirements, downstream design/code/tests, safety impact, and regression scope. Modifying baselined artifacts without a CR is a configuration management violation.
+
+### R8: Atomic Traceability Per Commit
+🔴 **One change request or problem report per commit.**
+Each commit must trace to exactly one CR or PR. No compound commits mixing unrelated changes. Commit messages must include the CR/PR identifier. This enables audit trail reconstruction and regression scoping.
+
+---
+
+## Project Structure
+
+```
+{{PROJECT_ROOT}}/
+├── AGENTS.md                          # This file — project constitution
+├── docs/
+│   ├── plans/
+│   │   ├── PSAC-{{ID}}.md            # Plan for Software Aspects of Certification/Approval
+│   │   ├── SDP-{{ID}}.md             # Software Development Plan
+│   │   ├── SVP-{{ID}}.md             # Software Verification Plan
+│   │   ├── SCMP-{{ID}}.md            # Software Configuration Management Plan
+│   │   └── SQAP-{{ID}}.md            # Software Quality Assurance Plan
+│   ├── standards/
+│   │   ├── SRS-{{ID}}.md             # Software Requirements Standards
+│   │   ├── SDS-{{ID}}.md             # Software Design Standards
+│   │   └── SCS-{{ID}}.md             # Software Code Standards
+│   ├── requirements/
+│   │   ├── system-reqs/              # Allocated system requirements (read-only input)
+│   │   ├── hlr/                      # High-Level Requirements
+│   │   │   ├── HLR-{{MODULE}}-*.md   # One file per functional area
+│   │   │   └── index.md              # HLR index with status and baseline
+│   │   ├── llr/                      # Low-Level Requirements (DAL C+)
+│   │   │   ├── LLR-{{MODULE}}-*.md
+│   │   │   └── index.md
+│   │   └── derived/                  # Derived requirements register
+│   │       └── DRV-*.md
+│   ├── design/
+│   │   ├── architecture/             # Software architecture description
+│   │   │   ├── DES-ARCH-*.md
+│   │   │   └── interfaces.md         # Interface control document
+│   │   └── detailed/                 # Detailed design per component
+│   │       └── DES-{{MODULE}}-*.md
+│   └── certification/
+│       └── SAS-{{ID}}.md             # Software Accomplishment Summary
+├── src/                               # Source code
+│   ├── {{module}}/
+│   │   ├── {{module}}.h              # Public interface
+│   │   ├── {{module}}.c              # Implementation
+│   │   └── {{module}}_internal.h     # Internal declarations (if needed)
+│   └── ...
+├── test/
+│   ├── cases/                         # Test case specifications
+│   │   ├── TST-{{MODULE}}-*.md       # Requirements-based test cases
+│   │   └── index.md                  # Test case index with traceability
+│   ├── procedures/                    # Test procedures (automated scripts)
+│   │   └── tst_{{module}}.c
+│   ├── results/                       # Test execution results
+│   │   └── {{BASELINE_ID}}/
+│   └── coverage/                      # Structural coverage reports
+│       └── {{BASELINE_ID}}/
+├── trace/
+│   ├── trace-matrix.md               # Master traceability matrix
+│   ├── req-to-design.md              # Requirements → Design trace
+│   ├── req-to-code.md                # Requirements → Code trace
+│   ├── req-to-test.md                # Requirements → Test trace
+│   └── derived-register.md           # Derived requirements with safety assessment
+├── cm/
+│   ├── baselines/                     # Baseline records
+│   │   └── BL-{{ID}}-*.md
+│   ├── change-requests/               # Change requests
+│   │   └── CR-{{YEAR}}-*.md
+│   └── problem-reports/               # Problem reports
+│       └── PR-{{YEAR}}-*.md
+└── tools/
+    ├── tool-register.md               # Tools used with qualification status
+    └── tql-assessments/               # DO-330 tool qualification assessments
+        └── TQL-{{TOOL}}-*.md
+```
+
+### Naming Conventions
+
+| Artifact Type | Pattern | Example |
+|--------------|---------|---------|
+| High-Level Requirement | `HLR-{{MODULE}}-{{NNN}}` | `HLR-NAV-042` |
+| Low-Level Requirement | `LLR-{{MODULE}}-{{NNN}}` | `LLR-NAV-042-001` |
+| Derived Requirement | `DRV-{{MODULE}}-{{NNN}}-{{NNN}}` | `DRV-NAV-012-002` |
+| Design Element | `DES-{{MODULE}}-{{NNN}}` | `DES-NAV-012` |
+| Test Case | `TST-{{MODULE}}-{{NNN}}-{{NNN}}` | `TST-NAV-042-003` |
+| Problem Report | `PR-{{YEAR}}-{{NNNN}}` | `PR-2025-0142` |
+| Change Request | `CR-{{YEAR}}-{{NNNN}}` | `CR-2025-0031` |
+| Baseline | `BL-{{MODULE}}-{{PHASE}}-{{NNN}}` | `BL-NAV-CODE-003` |
+| Source File | `{{module}}.c` / `{{module}}.h` | `vor_bearing.c` |
+| Test Procedure | `tst_{{module}}.c` | `tst_vor_bearing.c` |
+
+---
+
+## Coding Standards
+
+### Language and Compiler
+
+| Setting | Value |
+|---------|-------|
+| **Language** | {{C99 / C11 / C++ subset / Ada / Other}} |
+| **Compiler** | {{Compiler and version}} |
+| **Target** | {{Target processor and board}} |
+| **Host** | {{Host development platform}} |
+| **Static Analysis** | {{Tool — e.g., PC-lint, Polyspace, Coverity, cppcheck}} |
+| **Coding Standard** | {{MISRA C:2012 / CERT C / Project-specific — reference SCS document}} |
+
+### Mandatory Coding Rules
+
+These rules supplement the project Software Code Standards (SCS) document. Violations are findings.
+
+```
+1.  All functions shall have a file-level traceability header:
+    @req, @design, @dal/@al, @status
+
+2.  All functions at module boundaries shall validate all input
+    parameters before processing (defensive input validation pattern).
+
+3.  All functions shall return a status/error code. Void returns
+    are permitted only for internal helper functions with no
+    failure modes.
+
+4.  All switch statements shall include a default case, even if
+    all enum values are handled. The default case shall log an
+    error and transition to a safe state.
+
+5.  Dynamic memory allocation (malloc, calloc, realloc, free)
+    is {{PROHIBITED / PERMITTED WITH CONSTRAINTS — specify}}.
+
+6.  Recursion is {{PROHIBITED / PERMITTED only with provable
+    termination and bounded stack depth — specify bound}}.
+
+7.  Floating-point equality comparisons (==, !=) are prohibited.
+    Use tolerance-based comparison functions.
+
+8.  All magic numbers shall be defined as named constants with
+    units documented in the name or comment.
+
+9.  Global variables are {{PROHIBITED / PERMITTED WITH CONSTRAINTS
+    — specify access control pattern}}.
+
+10. Compiler warnings shall be treated as errors. The project
+    compiles with {{-Wall -Werror / equivalent flags}}.
+
+11. All #include dependencies shall be explicit. No reliance on
+    transitive includes.
+
+12. Deactivated code (code not intended to execute in this
+    configuration) shall be identified with @deactivated annotation
+    and verified to the same DAL/AL or safely isolated.
+
+13. Dead code (code that can never execute) shall be removed.
+    If removal is infeasible, it shall be documented with
+    justification in the SAS.
+```
+
+### Source File Template
+
+```c
+/**
+ * @file    {{filename}}.c
+ * @brief   {{One-line description of module purpose}}
+ *
+ * @req     {{HLR-XXX-NNN, HLR-XXX-NNN, ...}}
+ * @design  {{DES-XXX-NNN}}
+ * @dal     {{A|B|C|D}}
+ * @al      {{1|2|3|4|5}}  (DO-278A projects only)
+ * @status  DRAFT — REQUIRES INDEPENDENT REVIEW
+ * @baseline {{BL-ID or "—" if not yet baselined}}
+ *
+ * @author  {{Agent ID or human name}}
+ * @date    {{YYYY-MM-DD}}
+ * @cr      {{CR-YYYY-NNNN}} (if modifying existing baseline)
+ *
+ * Copyright (c) {{YEAR}} {{ORGANIZATION}}. All rights reserved.
+ * CONFIDENTIAL — {{CLASSIFICATION}}
+ */
+
+/*===========================================================================
+ * INCLUDES
+ *===========================================================================*/
+#include "{{filename}}.h"
+
+/*===========================================================================
+ * PRIVATE CONSTANTS AND MACROS
+ *===========================================================================*/
+
+/*===========================================================================
+ * PRIVATE TYPES
+ *===========================================================================*/
+
+/*===========================================================================
+ * PRIVATE FUNCTION PROTOTYPES
+ *===========================================================================*/
+
+/*===========================================================================
+ * PRIVATE DATA
+ *===========================================================================*/
+
+/*===========================================================================
+ * PUBLIC FUNCTIONS
+ *===========================================================================*/
+
+/*===========================================================================
+ * PRIVATE FUNCTIONS
+ *===========================================================================*/
+```
+
+### Function Documentation Template
+
+```c
+/**
+ * @brief   {{One-line description}}
+ * @req     {{Requirement ID(s) this function satisfies}}
+ * @design  {{Design element ID}}
+ *
+ * @param[in]   {{name}}  {{Description, range, units}}
+ * @param[out]  {{name}}  {{Description, range, units}}
+ * @return  {{Return type and meaning of each possible value}}
+ *
+ * @pre     {{Preconditions that must hold on entry}}
+ * @post    {{Postconditions guaranteed on successful return}}
+ *
+ * @derived {{DRV-ID: description}}  (only if function implements
+ *          a derived requirement — include safety impact)
+ */
+```
+
+---
+
+## Traceability Requirements
+
+### The Traceability Chain
+
+The following chain must be complete and bidirectional at phase completion:
+
+```
+System Requirements (input — read-only)
+    │
+    ▼  (decomposition — documented in HLR files)
+High-Level Requirements (HLRs)
+    │
+    ▼  (refinement — documented in LLR files, DAL C+ only)
+Low-Level Requirements (LLRs)
+    │
+    ▼  (design — documented in DES files)
+Software Design
+    │
+    ▼  (implementation — @req/@design annotations in source)
+Source Code
+    │
+    ▼  (build — controlled by CM, compiler qualified if needed)
+Executable Object Code
+    │
+    ▼  (source-to-object traceability — DAL A only)
+Target Executable
+
+    ═══════════════════════════════════════
+
+Requirements (HLR + LLR)
+    │
+    ▼  (test derivation — documented in TST case files)
+Test Cases & Procedures
+    │
+    ▼  (execution — results in test/results/)
+Test Results
+    │
+    ▼  (coverage analysis — reports in test/coverage/)
+Structural Coverage
+```
+
+### Traceability Matrix Maintenance
+
+The master traceability matrix (`trace/trace-matrix.md`) is a living artifact. It must be updated whenever:
+
+- A requirement is added, modified, or deleted
+- A design element is added, modified, or deleted
+- A source code module is added, modified, or deleted
+- A test case is added, modified, or deleted
+- A derived requirement is identified
+
+**The agent should check and update the traceability matrix as part of every task.** Gaps discovered during work must be reported immediately, not deferred.
+
+### Derived Requirements Register
+
+All derived requirements are tracked in `trace/derived-register.md` with:
+
+| Field | Required |
+|-------|----------|
+| Derived Req ID | Yes |
+| Source (which artifact introduced it) | Yes |
+| Rationale | Yes |
+| Safety Impact Assessment | Yes |
+| Status (OPEN / ASSESSED / ACCEPTED) | Yes |
+| System Safety Review Date | When assessed |
+
+---
+
+## Configuration Management
+
+### Branching Strategy
+
+```
+main                    ← Release baselines only (BL-tagged)
+  └── develop           ← Integration branch (Gate 4+)
+       ├── req/CR-YYYY-NNNN   ← Requirements work (Gate 1)
+       ├── des/CR-YYYY-NNNN   ← Design work (Gate 2)
+       ├── code/CR-YYYY-NNNN  ← Implementation work (Gate 3)
+       ├── test/CR-YYYY-NNNN  ← Test development (Gate 5)
+       └── fix/PR-YYYY-NNNN   ← Problem report fixes
+```
+
+### Commit Message Format
+
+```
+[{{CR-YYYY-NNNN|PR-YYYY-NNNN}}] {{Phase}}: {{Brief description}}
+
+Traced artifacts:
+- Req: {{HLR/LLR IDs affected}}
+- Design: {{DES IDs affected}}
+- Code: {{files modified}}
+- Test: {{TST IDs affected}}
+
+Impact: {{Brief impact statement or "No safety impact"}}
+```
+
+Example:
+```
+[CR-2025-0031] CODE: Implement VOR bearing wrap-around fix
+
+Traced artifacts:
+- Req: HLR-NAV-042
+- Design: DES-NAV-012
+- Code: src/nav/vor_bearing.c, src/util/math_utils.c
+- Test: TST-NAV-042-001 through 008 (re-execute)
+
+Impact: Fixes boundary condition at 360°/0°. No new failure mode.
+```
+
+### Baseline Policy
+
+| Baseline Type | When Established | What It Contains | Gate |
+|--------------|-----------------|------------------|------|
+| Requirements Baseline | After Gate 1 approval | All HLR/LLR docs, trace matrix | Gate 1 |
+| Design Baseline | After Gate 2 approval | Architecture + detailed design | Gate 2 |
+| Code Baseline | After Gate 3 approval | All source code, build scripts | Gate 3 |
+| Test Baseline | After Gate 5 approval | Test cases, procedures, results, coverage | Gate 5 |
+| Release Baseline | After Gate 7 approval | Complete lifecycle data package | Gate 7 |
+
+---
+
+## Verification Strategy
+
+### Test Categories Required at {{LEVEL}}
+
+<!--
+  Mark applicable categories for your project's DAL/AL.
+-->
+
+| Category | DAL A/AL1 | DAL B/AL2 | DAL C/AL3 | AL4 | DAL D/AL5 |
+|----------|-----------|-----------|-----------|-----|-----------|
+| Normal range testing | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Boundary value testing | ✅ | ✅ | ✅ | ✅ | — |
+| Robustness testing | ✅ | ✅ | ✅ | Partial | — |
+| Error handling testing | ✅ | ✅ | ✅ | ✅ | — |
+| HW/SW integration testing | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Statement coverage | ✅ | ✅ | ✅ | — | — |
+| Decision coverage | ✅ | ✅ | — | — | — |
+| MC/DC | ✅ | — | — | — | — |
+| Data/control coupling analysis | ✅ | — | — | — | — |
+| Source-to-object traceability | ✅ | — | — | — | — |
+
+### Test Case Structure
+
+Every test case must contain:
+
+```markdown
+## {{TST-ID}}: {{Title}}
+
+@test     {{TST-ID}}
+@req      {{Requirement(s) under test}}
+@type     {{Normal / Boundary / Robustness / Error / Integration}}
+@dal      {{Level}}
+@status   DRAFT
+@env      {{Host / Target / Simulator — specify}}
+
+**Objective**: {{What is being verified and why}}
+
+**Pre-conditions**: {{System/module state required before test}}
+
+| Step | Input | Expected Output | Tolerance | Pass/Fail |
+|------|-------|-----------------|-----------|-----------|
+| 1    |       |                 |           |           |
+
+**Pass/Fail Criteria**: {{Objective, unambiguous criteria}}
+
+**Post-conditions**: {{Expected system state after test}}
+
+**Notes**: {{Special instructions, known limitations, environment requirements}}
+```
+
+### Coverage Gap Resolution
+
+When structural coverage analysis reveals gaps, resolve using **only** these methods (in order of preference):
+
+1. **Additional requirements-based test cases** — Identify which requirement facet the uncovered code implements, write a test that exercises it from the requirements perspective.
+2. **Dead code removal** — If the code can never execute and serves no purpose, remove it. Document the removal in a PR.
+3. **Deactivated code analysis** — If the code is intentionally present but not active in this configuration, document why and verify it is safely isolated.
+4. **Analysis justification** — If coverage cannot be achieved through testing (e.g., defensive code for hardware faults), provide written analysis justifying the gap. Include in SAS.
+
+🔴 **Never write tests solely to achieve coverage targets.** Tests must always derive from requirements. Writing code-directed tests to close coverage gaps is a process violation.
+
+---
+
+## Tool Register
+
+All tools that produce, transform, or verify project artifacts must be registered:
+
+| Tool | Version | Purpose | DO-330 Criterion | TQL Required | Qualification Status |
+|------|---------|---------|-------------------|-------------|---------------------|
+| {{Compiler}} | {{ver}} | Code compilation | 1 (if optimizations affect behavior) | {{TQL}} | {{Status}} |
+| {{Static Analyzer}} | {{ver}} | Coding standards | 3 | {{TQL}} | {{Status}} |
+| {{Coverage Tool}} | {{ver}} | Structural coverage | 3 | {{TQL}} | {{Status}} |
+| {{Test Framework}} | {{ver}} | Test execution | 3 | {{TQL}} | {{Status}} |
+| AI Agent ({{model}}) | {{ver}} | Code generation | 1 | N/A — Compensating verification | All output independently verified |
+| {{Build System}} | {{ver}} | Build automation | — | — | Utility tool — output verified |
+
+### AI Agent as Tool
+
+The AI agent used on this project is classified as a **DO-330 Criterion 1 tool** (its output becomes part of the deliverable software). Full DO-330 qualification is not pursued due to the non-deterministic nature of LLM-based agents.
+
+**Compensating verification approach**: All AI-generated output is subject to 100% of the verification activities that would apply to human-written artifacts. No verification process is eliminated, reduced, or automated by the agent's involvement. Therefore, DO-330 tool qualification is not required because the tool provides no process credit.
+
+This means:
+- AI-generated requirements are independently reviewed by a human
+- AI-generated design is independently reviewed by a human
+- AI-generated code is independently reviewed by a human and subject to full static analysis, requirements-based testing, and structural coverage analysis
+- AI-generated test cases are independently reviewed by a human
+- The AI agent never signs off on its own output
+
+---
+
+## Phase Gate Definitions
+
+### Gate 0 — Planning Complete
+
+**Entry**: System requirements allocated, DAL/AL determined
+**Activities**: PSAC/PSAA, SDP, SVP, SCMP, SQAP drafted and reviewed
+**Exit criteria**:
+- [ ] All five planning documents reviewed and approved
+- [ ] Three standards documents (SRS, SDS, SCS) established
+- [ ] Tool register populated with qualification assessments
+- [ ] SOI #1 (planning review) completed with authority
+- [ ] This AGENTS.md reviewed and approved by project lead
+- **Approval**: {{APPROVER_ROLE}}
+
+### Gate 1 — Requirements Complete
+
+**Entry**: Gate 0 passed, system requirements baselined
+**Activities**: HLR development, LLR development (DAL C+), derived requirements identification
+**Exit criteria**:
+- [ ] All system requirements decomposed to ≥1 HLR
+- [ ] All HLRs reviewed for attributes (unique, testable, unambiguous, complete, consistent, traceable)
+- [ ] LLRs complete for all HLRs (DAL C+)
+- [ ] All derived requirements identified, flagged, and safety-assessed
+- [ ] Traceability matrix forward-complete: system reqs → HLRs → LLRs
+- [ ] Requirements baseline established (`BL-{{MODULE}}-REQ-001`)
+- **Approval**: {{APPROVER_ROLE}}
+
+### Gate 2 — Design Complete
+
+**Entry**: Gate 1 passed, requirements baselined
+**Activities**: Architecture design, detailed design, interface definition
+**Exit criteria**:
+- [ ] Architecture describes all components, interfaces, data flow, control flow
+- [ ] Every design element traces to ≥1 requirement
+- [ ] Partitioning strategy documented (if mixed-criticality)
+- [ ] Data coupling and control coupling identified
+- [ ] Design reviewed against requirements (bidirectional)
+- [ ] Design baseline established (`BL-{{MODULE}}-DES-001`)
+- **Approval**: {{APPROVER_ROLE}}
+
+### Gate 3 — Code Complete
+
+**Entry**: Gate 2 passed, design baselined
+**Activities**: Implementation, static analysis, independent code review
+**Exit criteria**:
+- [ ] All source code has traceability headers (@req, @design, @status)
+- [ ] All derived implementation decisions flagged with @derived
+- [ ] Static analysis clean (zero unresolved safety-relevant findings)
+- [ ] Independent human code review completed for all modules
+- [ ] Coding standards compliance verified
+- [ ] Code baseline established (`BL-{{MODULE}}-CODE-001`)
+- **Approval**: {{APPROVER_ROLE}}
+
+### Gate 4 — Integration Complete
+
+**Entry**: Gate 3 passed, code baselined
+**Activities**: Compilation, linking, loading to target, integration testing
+**Exit criteria**:
+- [ ] Executable Object Code built from baselined source
+- [ ] Build is reproducible (same source → same binary)
+- [ ] Integration tests pass on target hardware
+- [ ] No unresolved linker warnings or errors
+- **Approval**: {{APPROVER_ROLE}}
+
+### Gate 5 — Verification Complete
+
+**Entry**: Gates 1–4 passed (verification runs concurrently but closes here)
+**Activities**: Requirements-based testing, structural coverage analysis, verification completeness review
+**Exit criteria**:
+- [ ] Requirements-based test cases exist for 100% of requirements
+- [ ] All test cases executed with results recorded
+- [ ] Normal range tests: 100% pass
+- [ ] Robustness tests: 100% pass (DAL C+)
+- [ ] HW/SW integration tests: 100% pass
+- [ ] Structural coverage meets DAL target: {{statement / decision / MC/DC}}
+- [ ] All coverage gaps resolved per approved methods
+- [ ] All Problem Reports dispositioned
+- [ ] Traceability matrix complete in both directions
+- [ ] SOI #3 (verification review) completed with authority
+- [ ] Test baseline established (`BL-{{MODULE}}-TST-001`)
+- **Approval**: {{APPROVER_ROLE}}
+
+### Gate 6 — CM Audit Complete
+
+**Entry**: Gate 5 passed
+**Activities**: Configuration audit, SQA records review
+**Exit criteria**:
+- [ ] All lifecycle data items at correct CC1/CC2 status
+- [ ] All baselines verified (requirements, design, code, test)
+- [ ] All Problem Reports closed or deferred with safety justification
+- [ ] All Change Requests closed
+- [ ] CM records complete and auditable
+- [ ] SQA records confirm process compliance throughout project
+- **Approval**: {{APPROVER_ROLE}}
+
+### Gate 7 — Approval/Certification Ready
+
+**Entry**: Gate 6 passed
+**Activities**: SAS completion, final compliance review, authority submission
+**Exit criteria**:
+- [ ] SAS documents planned vs. accomplished for every Annex A objective
+- [ ] All deviations documented and justified
+- [ ] Open items list reviewed with authority
+- [ ] SOI #4 (final review) completed with authority
+- [ ] Release baseline established (`BL-{{MODULE}}-REL-001`)
+- **Approval**: {{APPROVER_ROLE}} + {{AUTHORITY_REPRESENTATIVE}}
+
+---
+
+## Agent Operational Boundaries
+
+### The Agent MAY
+
+- Draft requirements from system-level specifications (within current phase)
+- Generate design documentation with traceability annotations
+- Write implementation code with full traceability headers
+- Generate requirements-based test cases and procedures
+- Run static analysis tools and report results
+- Identify traceability gaps in matrices and report them
+- Draft change impact analyses for proposed changes
+- Draft problem reports for discovered issues
+- Generate structural coverage gap analysis
+- Update traceability matrices when artifacts change
+- Draft COTS gap analysis documents (DO-278A)
+- Propose derived requirements (flagged for human review)
+- Generate CM artifacts (CR/PR templates, baseline records)
+
+### The Agent MUST NOT
+
+- Advance past a phase gate without human approval
+- Serve as independent reviewer of its own output
+- Claim compliance, certification, or approval status
+- Modify baselined artifacts without an approved Change Request
+- Make safety assessment or failure severity determinations
+- Sign off on verification completeness
+- Submit artifacts to the certification/approval authority
+- Override or relax the DAL/AL assignment
+- Remove the `DRAFT — REQUIRES INDEPENDENT REVIEW` status from its own output
+- Combine multiple CRs or PRs into a single commit
+- Write tests designed to achieve coverage targets rather than verify requirements
+- Introduce architectural decisions beyond the scope of the current design specification
+- Skip input validation or error handling to simplify implementation
+
+### When In Doubt
+
+If the agent encounters ambiguity about whether an action is permitted:
+
+1. **Stop and ask.** Do not guess.
+2. **Cite the specific rule** from this AGENTS.md that creates the ambiguity.
+3. **Propose options** with their traceability and safety implications.
+4. **Wait for human direction** before proceeding.
+
+Ambiguity in safety-critical development is a finding, not an inconvenience. Resolving it correctly is more important than resolving it quickly.
+
+---
+
+## Skills and References
+
+| Skill / Reference | Location | Purpose |
+|-------------------|----------|---------|
+| Software Assurance Skill | `skills/software-assurance/SKILL.md` | Core competencies, workflows, patterns, and coding examples for DO-178C/DO-278A development |
+| Software Requirements Standards | `docs/standards/SRS-{{ID}}.md` | Requirements writing rules |
+| Software Design Standards | `docs/standards/SDS-{{ID}}.md` | Design documentation rules |
+| Software Code Standards | `docs/standards/SCS-{{ID}}.md` | Coding rules and static analysis configuration |
+| {{Additional project-specific skills}} | {{path}} | {{purpose}} |
+
+---
+
+## Project-Specific Notes
+
+<!--
+  Add project-specific context, constraints, and decisions here.
+  Examples:
+
+  - Target hardware constraints (memory, timing, I/O)
+  - COTS components in use and their assurance status
+  - Known deviations from standard process (with justification)
+  - Authority-specific requirements or agreements
+  - Multi-partition or mixed-criticality architecture notes
+  - Security classification and handling requirements
+  - Interface agreements with other systems
+  - Reuse of previously certified/approved components
+-->
+
+{{PROJECT_SPECIFIC_NOTES}}
+
+---
+
+*This AGENTS.md is a Configuration Item under {{SCMP_REFERENCE}}.
+Classification: **CC1** — changes require formal change control.
+Current version: {{VERSION}} | Baseline: {{BASELINE_ID}} | Date: {{DATE}}*
