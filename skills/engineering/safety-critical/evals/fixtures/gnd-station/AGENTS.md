@@ -21,9 +21,10 @@
 | **Current Baseline** | BL-NAV-CODE-002 |
 | **Current Phase** | VERIFICATION |
 
-**This project operates at AL3 (Major).** Structural coverage target: **statement coverage**.
-Robustness testing is required. Objective and independence counts are per the project PSAA
-compliance matrix (PSAA-GCCC-001 §4) — that document is the authority, not this file.
+**This project operates at AL3 (Major).** Structural coverage target: **statement coverage plus
+data and control coupling analysis**. Robustness testing is required. Objective and independence
+counts are per the project PSAA compliance matrix (PSAA-GCCC-001 §4) — that document is the
+authority, not this file.
 
 ---
 
