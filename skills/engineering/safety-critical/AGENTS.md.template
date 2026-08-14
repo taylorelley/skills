@@ -30,9 +30,9 @@
 
 | Level | Objectives (approx.) | Independence (approx.) | Structural coverage — cumulative | Robustness Testing |
 |-------|-----------|-------------|-----------------|-------------------|
-| DAL A / AL1 | 71 | ~30–33 | Statement + decision + MC/DC, plus data & control coupling and source-to-object traceability | Full |
-| DAL B / AL2 | 69 | ~18–21 | Statement + decision | Full |
-| DAL C / AL3 | 62 | ~5–8 | Statement | Full |
+| DAL A / AL1 | 71 | ~30–33 | Statement + decision + MC/DC + data & control coupling, plus source-to-object traceability | Full |
+| DAL B / AL2 | 69 | ~18–21 | Statement + decision + data & control coupling | Full |
+| DAL C / AL3 | 62 | ~5–8 | Statement + data & control coupling | Full |
 | AL4 (DO-278A only) | tailored, ~40–50 | ~6 | Requirements-based; structural coverage tailored per the approved PSAA | Partial |
 | DAL D / AL5 | 26 | ~2–5 | Requirements-based HLR coverage only | Normal range only |
 | DAL E / AL6 | 0 | 0 | None | None |
@@ -459,8 +459,12 @@ Impact: Fixes boundary condition at 360°/0°. No new failure mode.
 | Statement coverage | ✅ | ✅ | ✅ | — | — |
 | Decision coverage | ✅ | ✅ | — | — | — |
 | MC/DC | ✅ | — | — | — | — |
-| Data/control coupling analysis | ✅ | — | — | — | — |
+| Data/control coupling analysis | ✅ | ✅ | ✅ | — | — |
 | Source-to-object traceability | ✅ | — | — | — | — |
+
+Note the shape of the coverage rows: statement applies at A/B/C, decision at A/B, MC/DC at A only
+— and data/control coupling at A/B/C, **not** A only. DC/CC sits next to MC/DC in the standard's
+tables and is frequently mis-scoped as a DAL A concern.
 
 ### Test Case Structure
 

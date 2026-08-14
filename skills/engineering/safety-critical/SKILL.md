@@ -155,15 +155,20 @@ analysis:
 
 | DAL / AL | Structural coverage required |
 |----------|------------------------------|
-| A / AL1 | Statement **+** decision **+** MC/DC, plus data & control coupling analysis and source-to-object-code traceability |
-| B / AL2 | Statement **+** decision |
-| C / AL3 | Statement |
+| A / AL1 | Statement **+** decision **+** MC/DC **+** data & control coupling, plus source-to-object-code traceability |
+| B / AL2 | Statement **+** decision **+** data & control coupling |
+| C / AL3 | Statement **+** data & control coupling |
 | AL4 | Requirements-based coverage; structural coverage tailored per the approved PSAA |
 | D / AL5 | Requirements-based HLR coverage only |
 | E / AL6 | None |
 
 DAL A does not replace statement coverage with MC/DC; it adds MC/DC on top. MC/DC needs a
 minimum of N+1 test cases to independently toggle N conditions.
+
+**Data coupling and control coupling coverage is a separate objective that applies at DAL C as
+well as A and B** — it is not an MC/DC-tier concern. Teams routinely read it as DAL A only and
+get caught with it late, when it is expensive: DC/CC depends on the architecture and interface
+documentation, so unlike statement coverage you cannot close it by running more tests.
 
 Objective counts and independence counts per level are in `references/competencies.md`, with a
 warning attached: **do not quote them into a PSAC or a compliance matrix without checking the

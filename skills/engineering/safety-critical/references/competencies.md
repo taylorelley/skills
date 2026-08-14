@@ -120,8 +120,12 @@ Compiler behaviour, timing, and memory layout all differ.
 ## 7. Structural coverage analysis
 
 Coverage is **cumulative** — see the table in `SKILL.md`. Statement coverage from DAL C, adding
-decision coverage at DAL B, adding MC/DC plus data/control coupling analysis and
-source-to-object-code traceability at DAL A.
+decision coverage at DAL B, adding MC/DC and source-to-object-code traceability at DAL A.
+
+Data coupling and control coupling coverage is its own objective and applies at **DAL A, B and C**
+— not DAL A alone. It is the one most often mis-scoped, because it sits in the same Annex A table
+as MC/DC and gets mentally filed alongside it. It is also the hardest to retrofit: it is satisfied
+from the architecture and interface definitions, not by adding test cases.
 
 MC/DC requires that each condition in a decision independently affect the outcome; the minimum
 test vector count is N+1 for N conditions.
