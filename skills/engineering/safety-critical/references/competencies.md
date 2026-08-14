@@ -124,8 +124,11 @@ decision coverage at DAL B, adding MC/DC and source-to-object-code traceability 
 
 Data coupling and control coupling coverage is its own objective and applies at **DAL A, B and C**
 — not DAL A alone. It is the one most often mis-scoped, because it sits in the same Annex A table
-as MC/DC and gets mentally filed alongside it. It is also the hardest to retrofit: it is satisfied
-from the architecture and interface definitions, not by adding test cases.
+as MC/DC and gets mentally filed alongside it. The couplings are identified from the architecture
+and interface definitions, not discovered by writing tests — which is what makes it hard to
+retrofit late. But identifying them is not the same as closing the objective: you still need
+requirements-based integration tests that exercise each identified coupling, or a documented,
+authority-accepted analysis in place of testing for cases that genuinely cannot be exercised.
 
 MC/DC requires that each condition in a decision independently affect the outcome; the minimum
 test vector count is N+1 for N conditions.
@@ -148,7 +151,7 @@ usually compiler optimisation and is itself worth analysing.
 
 The chain, forward and backward:
 
-```
+```text
 System requirements → HLR → LLR → Source code → Executable object code
                                               → (DAL A) source-to-object traceability
 Requirements (HLR + LLR) → Test cases & procedures → Test results → Structural coverage

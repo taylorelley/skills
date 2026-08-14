@@ -91,7 +91,7 @@ All switch statements include a `default` case that logs and enters a safe state
 
 ## Project Structure
 
-```
+```text
 docs/requirements/hlr/     High-Level Requirements, one file per requirement
 docs/design/              Design descriptions (DES-*)
 src/{module}/             Source code

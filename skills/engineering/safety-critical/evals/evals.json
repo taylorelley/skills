@@ -115,9 +115,9 @@
         "Classifies the AI coding agent as a DO-330 Criterion 1 tool",
         "Correctly derives TQL-3 for Criterion 1 at this project's actual AL3/DAL C level from the criterion x DAL matrix -- not simply repeating the skill's own DAL A / TQL-1 worked example without adapting it to this project's level",
         "Recommends compensating verification (all AI output subject to full independent verification, no process eliminated or reduced, no credit claimed) as the practical resolution, with reasoning specific to why full qualification isn't pursued",
-        "Classifies the static analysis tool as DO-330 Criterion 3 (could fail to detect an error within its intended use) rather than assuming no qualification analysis is needed",
-        "Derives or states TQL-5 for the Criterion 3 tool from the matrix",
-        "Notes that TQL-5 tools are typically handled through compensating/independent verification of findings rather than full tool qualification",
+        "Ties the static analyzer's DO-330 classification to how it will actually be used, rather than assuming Criterion 3 unconditionally: if a passing run would let reviewers reduce or skip independently re-checking MISRA compliance (process credit), or a missed MISRA violation could remain undetected in the deliverable, classifies it as Criterion 3; if independent code review still fully and separately verifies MISRA compliance regardless of the tool's output, states that no DO-330 qualification is required (tool used for convenience, output independently verified)",
+        "When Criterion 3 applies, derives or states TQL-5 for the tool from the matrix",
+        "When TQL-5 applies, notes that TQL-5 tools are typically handled through compensating/independent verification of findings rather than full tool qualification",
         "Does not claim that using either tool already satisfies a DO-330 objective or that either tool is already qualified"
       ]
     }

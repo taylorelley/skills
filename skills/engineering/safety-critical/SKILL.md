@@ -61,8 +61,12 @@ conventions, coding standard, and tool register, then work within those constrai
 project needs an assurance level, phase gates, and traceability conventions defined first, and
 offer to run the setup wizard. This is not bureaucratic gatekeeping: artifacts produced without
 a known DAL get verified to the wrong depth, numbered to a convention nobody else uses, and
-generally have to be redone. Offer, don't refuse outright — if the user says they know and
-wants a draft anyway, produce it clearly marked as a pre-setup draft that is not lifecycle data.
+generally have to be redone. Offer, don't refuse outright for lack of an `AGENTS.md` alone — if
+the user says they know and wants a draft anyway, and the request itself is a reasonable,
+in-scope piece of lifecycle work, produce it clearly marked as a pre-setup draft that is not
+lifecycle data. This exception is about skipping the setup gate, not about skipping ordinary
+judgment — a request that is out of scope or otherwise inappropriate is still declined on its
+own terms, same as it would be with an `AGENTS.md` in place.
 
 That last exception does not extend to the rules below.
 
@@ -114,7 +118,7 @@ itself is the deliverable. Report it, propose the fix, and let change control ru
 Every artifact uses these so traceability is machine-checkable rather than a matrix somebody
 maintains by hand and nobody trusts:
 
-```
+```text
 @req <REQ-ID>          Traces to a requirement (HLR or LLR)
 @parent <REQ-ID>       Traces to the parent requirement one level up
 @design <DES-ID>       Traces to a design element
@@ -126,9 +130,15 @@ maintains by hand and nobody trusts:
 @baseline <BL-ID>      The governing baseline
 @dal <A|B|C|D|E>       Design Assurance Level (DO-178C)
 @al <1|2|3|4|5|6>      Assurance Level (DO-278A)
-@status                DRAFT | REVIEW | BASELINED | SUPERSEDED
+@status                DRAFT | REVIEW | BASELINED | SUPERSEDED — artifact lifecycle.
+                        OPEN | CLOSED — problem report disposition, a separate axis
+                        (see references/patterns.md Pattern 4).
 @independence REQUIRED Independent verification is mandatory for this artifact
 ```
+
+A `DRAFT` artifact always requires independent review, per Critical Rule 1 — the longer
+phrase used in prose (`DRAFT — REQUIRES INDEPENDENT REVIEW`) restates that rule for a
+human reader; the machine-checked `@status` value is the single word `DRAFT`.
 
 ### Checking traceability
 
@@ -167,8 +177,11 @@ minimum of N+1 test cases to independently toggle N conditions.
 
 **Data coupling and control coupling coverage is a separate objective that applies at DAL C as
 well as A and B** — it is not an MC/DC-tier concern. Teams routinely read it as DAL A only and
-get caught with it late, when it is expensive: DC/CC depends on the architecture and interface
-documentation, so unlike statement coverage you cannot close it by running more tests.
+get caught with it late, when it is expensive: the couplings themselves are identified from the
+architecture and interface documentation, not from source code, so if that documentation is thin
+you cannot backfill the analysis by writing more tests. Closing the objective still needs
+evidence, though — requirements-based integration tests that actually exercise each identified
+coupling, or a documented alternative the authority has accepted.
 
 Objective counts and independence counts per level are in `references/competencies.md`, with a
 warning attached: **do not quote them into a PSAC or a compliance matrix without checking the

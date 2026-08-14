@@ -49,7 +49,7 @@ you wrote "and shall", stop. You have one of two things, and they get fixed diff
   separate behaviours — a test case that verifies the rejection can check all of them as
   post-conditions of the one test, and one derived requirement or safety note covers all of them.
 
-```
+```text
 ✗ Non-atomic:
   The software shall reject a report with NIC < 5 within 5 NM of the threshold,
   and shall return an integrity rejection status, and shall not write a position

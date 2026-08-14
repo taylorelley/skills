@@ -165,7 +165,7 @@ Run `scripts/trace_check.py` before believing one — including one you just wro
 ## Pattern 4 — Problem report
 
 ```markdown
-## PR-2026-0142: VOR bearing wrap-around at 359.95°
+## PR-2026-0142: VOR bearing double-wrap not fully normalized
 
 @pr PR-2026-0142
 @req HLR-NAV-042
@@ -174,23 +174,33 @@ Run `scripts/trace_check.py` before believing one — including one you just wro
 @found_in BL-NAV-CODE-002
 @found_by TST-NAV-042-003 (boundary test)
 
-**Description**: When input bearing is 359.95° and the calculated result includes
-floating-point rounding, output reports 360.0° instead of wrapping to 0.0°.
-Violates the HLR-NAV-042 post-condition [0.0, 360.0).
+**Description**: When accumulated phase correction pushes the raw bearing to 720° or
+above (two full rotations — seen after repeated phase-unwrap corrections under noisy
+signal conditions), the output still reports a value ≥ 360° (e.g. 362.5°) instead of
+fully wrapping into [0.0, 360.0). Violates the HLR-NAV-042 post-condition.
 
-**Root Cause**: math_normalize_angle() uses `>=` where the 360.0 boundary needs
-a loop, so a single subtraction leaves the value at the boundary.
+**Root Cause**: math_normalize_angle() performs a single conditional subtraction
+(`if (angle >= 360.0f) angle -= 360.0f;`). That correctly resolves a value that has
+wrapped once (360.0° → 0.0°, 360.5° → 0.5°), but a value needing two wraps still sits
+at or above 360° afterward — the `if` never runs a second time. The function also has
+no lower-bound handling: a negative raw_bearing (possible depending on how
+vor_phase_extract() resolves quadrants) passes through unmodified, violating the same
+[0.0, 360.0) contract from the other direction.
 
 **Impact Assessment**:
-- HLR-NAV-042: directly violated at the boundary condition
-- Downstream: navigation display may show 360° instead of 0°/N
-- Safety: momentary display anomaly, no loss of navigation function (the value
-  is operationally equivalent). Failure condition: Minor.
+- HLR-NAV-042: directly violated — output can fall outside its stated range in either
+  direction, positive over-wrap or negative underflow.
+- Downstream: navigation display may show an out-of-range or discontinuous bearing.
+- Safety: momentary display anomaly, no loss of navigation function once corrected.
+  Failure condition: Minor.
 
-**Proposed Fix**: Replace `if (angle >= 360.0f)` with `while (angle >= 360.0f)`
-in math_utils.c:87, or use fmodf() with a positive-result guarantee.
+**Proposed Fix**: Replace the single conditional subtraction with `fmodf(angle, 360.0f)`
+followed by `if (angle < 0.0f) angle += 360.0f;` — fmodf handles any number of wraps in
+one call, and the guard brings a negative result (fmodf's sign follows its first
+argument) back into range.
 
-**Regression Scope**: TST-NAV-042-001..008 (full suite).
+**Regression Scope**: TST-NAV-042-001..008 (full suite), including new cases for
+raw_bearing ≥ 720° and raw_bearing < 0°.
 TST-MATH-UTIL-015..020 (angle normalization).
 ```
 

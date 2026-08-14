@@ -106,7 +106,11 @@ After the user selects a level, confirm by summarizing what it means:
 > - Roughly **{{N}} objectives** apply, of which about **{{M}}** require independent verification
 >   — planning estimates only, to be confirmed against your Annex A tables before they reach the
 >   PSAC/PSAA
-> - **Structural coverage target** (cumulative): {{statement / statement+decision / statement+decision+MC/DC / none}}
+> - **Structural coverage target** (cumulative — pick the row matching {{LEVEL}} from the
+>   table in `SKILL.md`): {{statement+decision+MC/DC+data/control-coupling+source-to-object
+>   traceability (DAL A/AL1) / statement+decision+data/control-coupling (DAL B/AL2) /
+>   statement+data/control-coupling (DAL C/AL3) / requirements-based, tailored per the
+>   approved PSAA (AL4) / requirements-based HLR coverage only (DAL D/AL5) / none (DAL E/AL6)}}
 > - **Robustness testing**: {{Full / Partial / Normal range only / None}}
 > - **Estimated verification overhead**: {{High / Moderate / Low / Minimal}}
 >
@@ -246,7 +250,7 @@ Before generating, check for internal consistency:
 | Check | Rule |
 |-------|------|
 | Standard ↔ Level terminology | DO-178C uses DAL A–E; DO-278A uses AL1–AL6. Don't mix. |
-| Level ↔ Coverage target | DAL A = MC/DC, DAL B = Decision, DAL C = Statement, DAL D = HLR-only, DAL E = None |
+| Level ↔ Coverage target | Cumulative, not alternatives — see the table in `SKILL.md`. DAL A = statement+decision+MC/DC+DC/CC+source-to-object; DAL B = statement+decision+DC/CC; DAL C = statement+DC/CC; DAL D = HLR-only; DAL E = none |
 | Level ↔ Robustness | DAL C+ requires robustness testing; DAL D does not |
 | Level ↔ Independence count | Must match the standard's Annex A table for the selected level |
 | Dynamic memory ↔ Level | If DAL A/B and dynamic memory permitted, flag for discussion |
