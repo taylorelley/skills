@@ -1,5 +1,5 @@
 <!-- 
-  This file is a resource loaded by software-assurance/SKILL.md.
+  This file is a resource loaded by safety-critical/SKILL.md.
   It is NOT a standalone skill.
   
   The main SKILL.md routes here when:
@@ -20,7 +20,7 @@ The interview is organized into **5 phases**, each collecting a logical group of
 
 ## Prerequisites
 
-- The AGENTS.md template must be accessible at `skills/software-assurance/AGENTS.md.template` (or the agent must have its structure in context)
+- The `AGENTS.md.template` file from this skill's own directory must be readable (or the agent must already have its structure in context)
 - The user should have completed (or be able to answer questions about):
   - System safety assessment results (failure condition severity)
   - Target hardware platform selection
@@ -49,7 +49,7 @@ Greet the user and set expectations:
 
 **Goal**: Establish the project name, system context, applicable standard, and regulatory framework.
 
-**Questions to ask** (use `ask_user_input` for bounded choices, prose for open-ended):
+**Questions to ask** (use `AskUserQuestion` for bounded choices, prose for open-ended):
 
 #### Q1.1 — Project Name (open-ended)
 > What is the project name? This will be used as the primary identifier throughout all documentation.
@@ -103,13 +103,22 @@ After the user selects a level, confirm by summarizing what it means:
 > **You selected {{LEVEL}} — {{FAILURE_CONDITION}}.**
 >
 > This means:
-> - **{{N}} objectives** must be satisfied
-> - **{{M}} objectives** require independent verification
-> - **Structural coverage target**: {{statement / decision / MC/DC / none}}
+> - Roughly **{{N}} objectives** apply, of which about **{{M}}** require independent verification
+>   — planning estimates only, to be confirmed against your Annex A tables before they reach the
+>   PSAC/PSAA
+> - **Structural coverage target** (cumulative — pick the row matching {{LEVEL}} from the
+>   table in `SKILL.md`): {{statement+decision+MC/DC+data/control-coupling+source-to-object
+>   traceability (DAL A/AL1) / statement+decision+data/control-coupling (DAL B/AL2) /
+>   statement+data/control-coupling (DAL C/AL3) / requirements-based, tailored per the
+>   approved PSAA (AL4) / requirements-based HLR coverage only (DAL D/AL5) / none (DAL E/AL6)}}
 > - **Robustness testing**: {{Full / Partial / Normal range only / None}}
 > - **Estimated verification overhead**: {{High / Moderate / Low / Minimal}}
 >
 > Does this match your expectations from the system safety assessment?
+
+Take the counts from `references/competencies.md` and carry its caveat with them. Quoting an
+unverified independence count into a compliance matrix is the kind of error that surfaces at an
+SOI review, when it is expensive to correct.
 
 #### Q2.2 — Mixed Criticality (conditional — only if relevant)
 > Does this project contain software components at different assurance levels? If yes, describe the partitioning strategy (e.g., "Navigation processing at DAL B, display rendering at DAL D, partitioned via memory protection unit").
@@ -241,7 +250,7 @@ Before generating, check for internal consistency:
 | Check | Rule |
 |-------|------|
 | Standard ↔ Level terminology | DO-178C uses DAL A–E; DO-278A uses AL1–AL6. Don't mix. |
-| Level ↔ Coverage target | DAL A = MC/DC, DAL B = Decision, DAL C = Statement, DAL D = HLR-only, DAL E = None |
+| Level ↔ Coverage target | Cumulative, not alternatives — see the table in `SKILL.md`. DAL A = statement+decision+MC/DC+DC/CC+source-to-object; DAL B = statement+decision+DC/CC; DAL C = statement+DC/CC; DAL D = HLR-only; DAL E = none |
 | Level ↔ Robustness | DAL C+ requires robustness testing; DAL D does not |
 | Level ↔ Independence count | Must match the standard's Annex A table for the selected level |
 | Dynamic memory ↔ Level | If DAL A/B and dynamic memory permitted, flag for discussion |
@@ -263,7 +272,7 @@ List all fields marked TBD and present them as a summary:
 
 ### Step 3: Generate the AGENTS.md
 
-Read the template from `skills/software-assurance/AGENTS.md.template` and perform the following substitutions:
+Read `AGENTS.md.template` from this skill's own directory and perform the following substitutions:
 
 1. **Replace all `{{PLACEHOLDER}}` tokens** with collected values
 2. **Delete inapplicable assurance level rows** from tables — keep only the row matching the project's level, plus headers
@@ -276,6 +285,10 @@ Read the template from `skills/software-assurance/AGENTS.md.template` and perfor
 9. **Set the current phase** to `PLANNING` (the project is being set up, so it cannot be past Gate 0)
 10. **Set the baseline** to `—` (no baseline exists yet)
 11. **Set the version** to `0.1-DRAFT`
+12. **Set `{{SKILL_PATH}}`** to this skill's directory as reachable from the project root, so the
+    generated file's references to `references/` and `scripts/trace_check.py` actually resolve.
+    Leave the objective/independence confirmation rows as `{{TBD}}` — they are a deliberate open
+    item for the team to close against their own Annex A tables, not something to guess.
 
 ### Step 4: Write the File
 
@@ -296,6 +309,11 @@ After the AGENTS.md is generated, offer to scaffold the project directory struct
 > - Tool register
 
 If the user agrees, generate the directory tree and stub files with appropriate headers and TBD content. Each stub should include the file's purpose, required content per the standard, and placeholder sections.
+
+The scaffolded layout is what `scripts/trace_check.py` expects by default
+(`docs/requirements/**`, `test/cases/**`, `src/**`). Run it once against the fresh scaffold and
+show the user the output — on an empty project it reports zero of everything, which is a useful
+demonstration of what it will tell them later and confirms the paths line up.
 
 ---
 
