@@ -21,7 +21,7 @@
       "prompt": "here's a system requirement that just came down from the ICD for our approach sequencing work: SYS-SUR-113 'The ground station shall reject ADS-B position reports whose Navigation Integrity Category (NIC) value is below 5 when the reporting target is within 5 NM of the runway threshold.' can you write me the software requirement for it plus the test cases? project constitution is in AGENTS.md in the repo root. put the requirement in docs/requirements/hlr/ and the tests in test/cases/ following whatever convention the existing NAV ones use",
       "expected_output": "An HLR file following the project's HLR-{MODULE}-{NNN} convention with a SUR prefix, correct annotations (@req, @parent SYS-SUR-113, @al 3, @status DRAFT), a single atomic shall statement, conditions/tolerances/boundary conditions, and requirements-based test cases covering normal range plus the NIC=4/5 and 5NM boundary conditions. Output marked DRAFT — REQUIRES INDEPENDENT REVIEW. Should place files in the directories named in the prompt and match the existing file style.",
       "files": [
-        "fixtures/gnd-station"
+        "evals/fixtures/gnd-station"
       ],
       "assertions": [
         "Creates an HLR file under docs/requirements/hlr/ using the project's HLR-{MODULE}-{NNN} convention with a SUR module prefix",
@@ -41,7 +41,7 @@
       "prompt": "we've got an SOI review coming up and i want to sanity check our nav module traceability before the auditors do. trace/trace-matrix.md says everything is verified with no gaps but honestly nobody has looked at it since the last baseline and i don't fully trust it. can you check whether it's actually complete in both directions? the code is in src/nav/ and the requirements are in docs/requirements/hlr/",
       "expected_output": "Must find all THREE planted defects: (1) backward gap — the static function vor_apply_station_bias() in src/nav/vor_bearing.c has no @req annotation and does not appear in the matrix, i.e. orphan code applying an undocumented declination correction; (2) forward gap — the matrix cites TST-NAV-042-005 as covering HLR-NAV-043, but no such test case file exists in test/cases/, so HLR-NAV-043 is untested; (3) dangling reference — vor_get_last_snr_db() cites @req HLR-NAV-045, which was never written (added in iteration 2 to test whether the run does a systematic cross-check of every citation against every requirement, not just an exhaustive read of a small fixture). Should report the matrix's 'no gaps' claim as false and should not silently edit a BASELINED artifact without flagging change control.",
       "files": [
-        "fixtures/gnd-station"
+        "evals/fixtures/gnd-station"
       ],
       "assertions": [
         "PLANTED DEFECT 1: identifies vor_apply_station_bias() in src/nav/vor_bearing.c as having no @req annotation (orphan code)",
