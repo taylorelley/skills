@@ -52,6 +52,74 @@
         "Does not silently edit the BASELINED trace-matrix.md; flags change control or raises a problem report instead",
         "Reports findings in both directions (forward: requirement without test; backward: code without requirement)"
       ]
+    },
+    {
+      "id": 3,
+      "name": "setup-mode-quick-start",
+      "prompt": "we're kicking off a new project — a ground-based multilateration processor for regional airport surveillance, feeding position data to the tower display. it'll be DO-278A since it's ground-based, and I think AL3 (major) based on what the safety folks said but they haven't given me the paperwork yet. CAA New Zealand is our authority. can you get the project constitution set up so we can start planning? we haven't picked our static analysis or coverage tools yet, and honestly not sure who's doing gate approvals yet either — my manager's still forming the team.",
+      "expected_output": "Routes to SETUP MODE / Quick Start Mode (no AGENTS.md exists yet). Generates an AGENTS.md from AGENTS.md.template with DO-278A / AL3 / CAA New Zealand filled in, Current Phase = PLANNING, no baseline. Explicitly lists the assumptions/defaults it applied (per Quick Start Mode). Leaves genuinely unknown fields (tooling, gate approvers) as TBD rather than inventing values. Does not assert objective/independence counts as fact -- flags them for confirmation against the project's own Annex A tables. Does not perform any development-mode work (no requirements/design/code) before the AGENTS.md exists. Offers to scaffold the project directory structure as a next step.",
+      "files": [],
+      "assertions": [
+        "Produces an actual AGENTS.md file (not just a description of one) populated from AGENTS.md.template's structure -- must be able to read the template to do this",
+        "Applicable Standard = DO-278A, Assurance Level = AL3, Regulatory Authority = CAA New Zealand, Current Phase = PLANNING, Current Baseline = none/dash",
+        "Explicitly lists the assumptions or defaults it applied, per Quick Start Mode, rather than silently presenting a finished document",
+        "Leaves genuinely unresolved fields (static analysis tool, coverage tool, gate approver roles) marked TBD rather than inventing specific tool names or people",
+        "Does not assert objective/independence counts as settled fact -- either omits them or flags them as needing confirmation against the project's own Annex A tables",
+        "Does not perform any requirements, design, or code work before the AGENTS.md is generated and presented",
+        "Offers to scaffold the project directory structure as a follow-up step"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "change-impact-analysis",
+      "prompt": "quick one -- SYS-NAV-018 just got revised upstream, they're tightening the VOR bearing accuracy from ±0.1° to ±0.05° but only when SNR is 25dB or higher (used to be no extra condition beyond the 20dB gate). can you do the change impact analysis before we open the CR? need to know what's actually affected.",
+      "expected_output": "Traces forward from HLR-NAV-042 (BASELINED) to vor_bearing.c (implements the accuracy calc) and TST-NAV-042-001 (asserts ±0.1° tolerance, needs updating). Flags a genuine ambiguity: does the new 25dB/±0.05° condition replace or supplement HLR-NAV-043's existing 20dB rejection gate, since there's now a tier between 20 and 25dB with no stated behaviour. Assesses safety impact (tighter accuracy at a higher SNR threshold may reduce availability in the 20-25dB band). Defines regression scope. Does not directly edit HLR-NAV-042.md or trace-matrix.md (both BASELINED) -- produces a change impact analysis document instead, marked DRAFT.",
+      "files": [
+        "evals/fixtures/gnd-station"
+      ],
+      "assertions": [
+        "Identifies vor_bearing.c as directly affected, since it implements the accuracy calculation the change modifies",
+        "Identifies TST-NAV-042-001 as needing revision, since its existing pass/fail criteria assert the old ±0.1° tolerance",
+        "Flags the lateral ambiguity between the new 25dB/±0.05° condition and HLR-NAV-043's existing 20dB rejection gate -- specifically that there is now an undefined band between 20 and 25dB -- rather than silently picking one interpretation",
+        "Assesses safety impact explicitly, not just listing affected files",
+        "States a concrete regression scope (which test cases must be re-executed)",
+        "Does not directly edit HLR-NAV-042.md or trace-matrix.md (both BASELINED); produces a separate change impact analysis document marked DRAFT instead"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "cots-evaluation",
+      "prompt": "we're thinking about swapping our custom ADS-B decoder for an existing open source one (a dump1090 fork) instead of maintaining our own -- vendor's basically one guy on github, no formal docs, but it's been running in a bunch of hobbyist stations for years. what do we actually need to do to use this in the AL3 nav module without writing decode logic from scratch?",
+      "expected_output": "Performs a DO-278A Section 12 gap analysis (vendor requirements docs, design docs, test procedures, CM process, defect history -- largely absent here). Applies CAST-1 service experience attributes, and specifically notes that hobbyist/community deployment differs materially from the CNS/ATM operational environment, so raw in-service hours don't transfer directly. Proposes concrete mitigations given source is available but undocumented (integrator black-box requirements-based testing, defensive wrapper/monitoring architecture) rather than assuming no-source-access mitigations. Frames the assurance case as claims/arguments/evidence. Does not claim the component is compliant or approved -- states this needs the integrator's own testing and, likely, an Alternate Means of Compliance agreed with the authority.",
+      "files": [
+        "evals/fixtures/gnd-station"
+      ],
+      "assertions": [
+        "Performs a gap analysis against the standard evidence categories (requirements docs, design/architecture docs, test procedures and results, CM process, defect/patch history) and correctly notes this vendor's evidence is largely absent",
+        "Applies the CAST-1 service-experience attributes by name or substance, and specifically flags that the hobbyist/community deployment environment differs from the CNS/ATM operational profile -- not just citing years of deployment as sufficient on its own",
+        "Proposes a concrete mitigation appropriate to source being available but undocumented (integrator black-box requirements-based testing and/or a defensive wrapper/monitoring architecture)",
+        "Frames the assurance case using claims / arguments / evidence structure",
+        "Does not claim the COTS component is already compliant or approved for use",
+        "Does not silently modify any existing baselined project artifact"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "tool-qualification",
+      "prompt": "two things came up in planning this week: first, our verification lead wants to bring in a static analysis tool (probably cppcheck, still deciding) to check MISRA compliance before code review. second, separately, someone on the team asked if using an AI assistant like you to help write the actual C code creates a DO-330 problem. can you sort out what's needed for both?",
+      "expected_output": "Classifies the AI coding agent as DO-330 Criterion 1 (its output becomes part of the deliverable code) and correctly applies the criterion x DAL/AL matrix AT THIS PROJECT'S ACTUAL LEVEL -- AL3/DAL C, which is TQL-3 for Criterion 1, not the DAL A/TQL-1 figure from the skill's own worked example -- rather than reflexively repeating that example without adapting it. Still recommends compensating verification (100% independent verification of agent output, no process credit claimed) as the practical path, with correct reasoning for why. Classifies the static analyzer as Criterion 3 (could fail to detect a MISRA violation), derives TQL-5 from the matrix, and notes TQL-5 tools are typically handled via independent confirmation of findings rather than full qualification. Registers both in the tool register. Does not claim either tool is already qualified.",
+      "files": [
+        "evals/fixtures/gnd-station"
+      ],
+      "assertions": [
+        "Classifies the AI coding agent as a DO-330 Criterion 1 tool",
+        "Correctly derives TQL-3 for Criterion 1 at this project's actual AL3/DAL C level from the criterion x DAL matrix -- not simply repeating the skill's own DAL A / TQL-1 worked example without adapting it to this project's level",
+        "Recommends compensating verification (all AI output subject to full independent verification, no process eliminated or reduced, no credit claimed) as the practical resolution, with reasoning specific to why full qualification isn't pursued",
+        "Classifies the static analysis tool as DO-330 Criterion 3 (could fail to detect an error within its intended use) rather than assuming no qualification analysis is needed",
+        "Derives or states TQL-5 for the Criterion 3 tool from the matrix",
+        "Notes that TQL-5 tools are typically handled through compensating/independent verification of findings rather than full tool qualification",
+        "Does not claim that using either tool already satisfies a DO-330 objective or that either tool is already qualified"
+      ]
     }
   ]
 }
