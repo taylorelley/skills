@@ -30,6 +30,45 @@ level, phase, and naming conventions are loaded.
 5. **Validate testability** by drafting the test case in your head. Concrete inputs, expected
    outputs, pass/fail criterion. If you cannot, the requirement is not finished.
 
+### Atomicity — the one attribute worth a litmus test
+
+"Single atomic shall statement" is easy to state and easy to violate without noticing, because a
+real behaviour usually comes with side effects, and side effects want to be documented *somewhere*.
+The template below gives them a home — the **Post-conditions** field — precisely so they don't
+end up bolted onto the shall statement as extra clauses.
+
+**The litmus test**: read your draft and count the word "shall". If it appears more than once, or
+you wrote "and shall", stop. You have one of two things, and they get fixed differently:
+
+- **Two independently-verifiable behaviours** (e.g. "shall reject invalid input" and "shall log
+  every rejection to the audit trail") → two requirements. A reviewer needs to trace, test, and
+  potentially waive each independently; bundling them forces both to pass or fail together.
+- **One behaviour with side effects** (e.g. "shall reject the report, shall return an error status,
+  shall not write an output, shall not update the track") → one shall statement plus a
+  **Post-conditions** field. The side effects are consequences of the single behaviour, not
+  separate behaviours — a test case that verifies the rejection can check all of them as
+  post-conditions of the one test, and one derived requirement or safety note covers all of them.
+
+```
+✗ Non-atomic:
+  The software shall reject a report with NIC < 5 within 5 NM of the threshold,
+  and shall return an integrity rejection status, and shall not write a position
+  output, and shall not update the target track.
+
+✓ Atomic, same behaviour fully specified:
+  Shall Statement: The software shall reject a position report whose NIC value
+  is below 5 when the reported position is within 5 NM of the runway threshold.
+
+  Post-conditions:
+  - Return status indicates integrity rejection
+  - No position output is written for the rejected report
+  - The target track is not updated from the rejected report
+```
+
+When genuinely unsure which case you're in, ask: could an auditor find one true and the other
+false? ("The reject logic works but nothing got logged.") If yes, they're two requirements. If the
+second clause can only ever be true when the first is, it's a post-condition of one.
+
 ### Template
 
 ```markdown
@@ -58,6 +97,9 @@ accuracy of ±0.1 degrees when the received signal-to-noise ratio is ≥ 20 dB.
 - Bearing wrap-around at 360°/0° boundary
 - SNR at exactly 20 dB threshold
 - Maximum slew rate: 15°/second
+
+**Post-conditions**: Bearing output is in range [0.0, 360.0). No output is written if the SNR gate
+rejects the input (see HLR-NAV-043).
 
 **Derived Requirements**: None identified.
 

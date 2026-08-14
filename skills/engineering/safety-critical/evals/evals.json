@@ -27,6 +27,7 @@
         "Creates an HLR file under docs/requirements/hlr/ using the project's HLR-{MODULE}-{NNN} convention with a SUR module prefix",
         "HLR carries @parent SYS-SUR-113 and @al 3 annotations matching the project's DO-278A AL3 setting",
         "Shall statement is a single atomic testable sentence",
+        "ATOMICITY: the shall statement does not contain a second 'shall' clause or 'and shall'; any side effects (status returned, output suppressed, track not updated) are documented as Post-conditions rather than folded into the shall statement itself",
         "Creates at least one test case file under test/cases/ carrying @test and @req annotations that trace to the new HLR",
         "Test cases cover the NIC boundary explicitly (NIC below 5 rejected, NIC equal to 5 accepted)",
         "Test cases cover the 5 NM range boundary explicitly",
@@ -38,13 +39,14 @@
       "id": 2,
       "name": "detect-traceability-gaps",
       "prompt": "we've got an SOI review coming up and i want to sanity check our nav module traceability before the auditors do. trace/trace-matrix.md says everything is verified with no gaps but honestly nobody has looked at it since the last baseline and i don't fully trust it. can you check whether it's actually complete in both directions? the code is in src/nav/ and the requirements are in docs/requirements/hlr/",
-      "expected_output": "Must find BOTH planted defects: (1) backward gap — the static function vor_apply_station_bias() in src/nav/vor_bearing.c has no @req annotation and does not appear in the matrix, i.e. orphan code applying an undocumented declination correction; (2) forward gap — the matrix cites TST-NAV-042-005 as covering HLR-NAV-043, but no such test case file exists in test/cases/, so HLR-NAV-043 is untested. Should report the matrix's 'no gaps' claim as false and should not silently edit a BASELINED artifact without flagging change control.",
+      "expected_output": "Must find all THREE planted defects: (1) backward gap — the static function vor_apply_station_bias() in src/nav/vor_bearing.c has no @req annotation and does not appear in the matrix, i.e. orphan code applying an undocumented declination correction; (2) forward gap — the matrix cites TST-NAV-042-005 as covering HLR-NAV-043, but no such test case file exists in test/cases/, so HLR-NAV-043 is untested; (3) dangling reference — vor_get_last_snr_db() cites @req HLR-NAV-045, which was never written (added in iteration 2 to test whether the run does a systematic cross-check of every citation against every requirement, not just an exhaustive read of a small fixture). Should report the matrix's 'no gaps' claim as false and should not silently edit a BASELINED artifact without flagging change control.",
       "files": [
         "fixtures/gnd-station"
       ],
       "assertions": [
         "PLANTED DEFECT 1: identifies vor_apply_station_bias() in src/nav/vor_bearing.c as having no @req annotation (orphan code)",
         "PLANTED DEFECT 2: identifies that HLR-NAV-043 has no test case, because TST-NAV-042-005 cited in the matrix does not exist in test/cases/",
+        "PLANTED DEFECT 3 (added iteration 2): identifies that vor_get_last_snr_db() cites @req HLR-NAV-045, and that no such requirement exists anywhere in docs/requirements/hlr/ -- a dangling reference, distinct from orphan code (which has no requirement citation at all) and from missing test coverage (which cites a real requirement with no test)",
         "States explicitly that the matrix's 'no gaps' / 'no orphan code' claim is false",
         "Explains the orphan function applies an undocumented declination correction that needs either a requirement or a derived requirement with safety impact",
         "Does not silently edit the BASELINED trace-matrix.md; flags change control or raises a problem report instead",
