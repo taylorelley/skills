@@ -34,14 +34,12 @@ Framework-specific best practices and tooling.
 Planning, documentation, ideation, and skill development.
 
 - **[agent-rules](skills/workflow/agent-rules/)** — Generate and maintain AGENTS.md files (and Copilot/other agent rule files) with verified commands, scoped sub-files, freshness checks, and quality scoring. Includes helper scripts, templates, and evals.
-
 - **[brainstorming](skills/workflow/brainstorming/)** — Turn ideas into fully formed designs and specs through natural collaborative dialogue. Mandatory before any creative work.
 - **[brand-naming](skills/workflow/brand-naming/)** — Brand naming frameworks, evaluation criteria, and templates for startup naming, including domain and trademark checks.
 - **[create-agentsmd](skills/workflow/create-agentsmd/)** — Prompt for generating a high-quality AGENTS.md for a repository, following the agents.md convention.
 - **[doc-coauthoring](skills/workflow/doc-coauthoring/)** — Structured workflow for co-authoring documentation, proposals, technical specs, and decision docs. Three stages: Context Gathering, Refinement & Structure, Reader Testing.
 - **[grill-me](skills/workflow/grill-me/)** — Calibrated grilling session that stress-tests a plan or decision. Assesses your knowledge and desired pressure first, then asks one question at a time with recommended answers.
 - **[grill-with-docs](skills/workflow/grill-with-docs/)** — Stress-tests a plan against the existing domain model, sharpens terminology, and updates documentation inline as decisions crystallise.
-
 - **[skill-creator](skills/workflow/skill-creator/)** — Create new skills, modify and improve existing ones, and measure skill performance. Includes evals, benchmarking, and description optimization.
 - **[to-prd](skills/workflow/to-prd/)** — Turn the current conversation context into a PRD and publish it to the project issue tracker.
 
