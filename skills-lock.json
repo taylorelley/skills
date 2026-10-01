@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "agent-rules": {
+      "source": "netresearch/agent-rules-skill",
+      "sourceType": "github",
+      "skillPath": "skills/agent-rules/SKILL.md",
+      "computedHash": "eb8431a1cf0af2ef300b95d366b15816e4140759d8dcad044e2905463babc107"
+    },
     "animejs": {
       "source": "heygen-com/hyperframes",
       "sourceType": "github",
