@@ -30,6 +30,7 @@ Framework-specific best practices and tooling.
 ### Workflow
 Planning, documentation, ideation, and skill development.
 
+- **[agent-rules](workflow/agent-rules/)** — Generate and maintain AGENTS.md files (and Copilot/other agent rule files) with verified commands, scoped sub-files, freshness checks, and quality scoring. Includes helper scripts, templates, and evals.
 - **[brainstorming](workflow/brainstorming/)** — Turn ideas into fully formed designs and specs through natural collaborative dialogue. Mandatory before any creative work.
 - **[doc-coauthoring](workflow/doc-coauthoring/)** — Structured workflow for co-authoring documentation, proposals, technical specs, and decision docs. Three stages: Context Gathering, Refinement & Structure, Reader Testing.
 - **[grill-with-docs](workflow/grill-with-docs/)** — Stress-tests a plan against the existing domain model, sharpens terminology, and updates documentation inline as decisions crystallise.
